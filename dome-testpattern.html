@@ -17,35 +17,45 @@
       overflow: hidden;
     }
     #preview {
-      width: min(100vh, calc(100vw - 280px)); height: min(100vh, calc(100vw - 280px));
+      width: min(100vh, calc(100vw - 340px)); height: min(100vh, calc(100vw - 340px));
       max-width: calc(100vh - 2rem); max-height: calc(100vh - 2rem);
       background: #000;
-      image-rendering: auto;
     }
     #panel {
-      width: 260px;
+      width: 320px;
       background: #0a0a0a;
       border-left: 1px solid #222;
-      padding: 1.5rem 1.25rem;
-      display: flex; flex-direction: column; gap: 1.25rem;
-      font-size: 0.82rem;
+      padding: 1.25rem 1rem;
+      display: flex; flex-direction: column; gap: 1rem;
+      font-size: 0.8rem;
+      overflow-y: auto;
+      max-height: 100vh;
     }
     #panel h1 { font-size: 0.85rem; font-weight: normal; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.6; }
-    #panel a.back { color: #888; text-decoration: none; font-size: 0.75rem; }
+    #panel a.back { color: #888; text-decoration: none; font-size: 0.72rem; }
     #panel a.back:hover { color: #fff; }
-    .group { display: flex; flex-direction: column; gap: 0.4rem; }
-    .group label { font-size: 0.72rem; opacity: 0.55; text-transform: uppercase; letter-spacing: 0.08em; }
-    select, button {
+    .group { display: flex; flex-direction: column; gap: 0.35rem; }
+    .group > label { font-size: 0.68rem; opacity: 0.5; text-transform: uppercase; letter-spacing: 0.08em; }
+    .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; }
+    .pair .field { display: flex; flex-direction: column; gap: 0.2rem; }
+    .pair .field span { font-size: 0.65rem; opacity: 0.45; }
+    input[type="number"], select, textarea, button {
       background: #000; color: #fff; border: 1px solid #333;
-      padding: 0.5rem 0.6rem; font: inherit; font-size: 0.82rem;
-      cursor: pointer;
+      padding: 0.4rem 0.5rem; font: inherit; font-size: 0.8rem;
+      font-family: ui-monospace, Menlo, monospace;
     }
-    select:hover, button:hover { border-color: #666; }
+    input[type="number"] { width: 100%; }
+    input:hover, select:hover, textarea:hover { border-color: #555; }
+    input:focus, select:focus, textarea:focus { border-color: #888; outline: none; }
+    textarea { width: 100%; resize: vertical; min-height: 120px; line-height: 1.45; }
+    button { cursor: pointer; }
+    button:hover { border-color: #666; }
     button.primary { background: #fff; color: #000; border-color: #fff; }
     button.primary:hover { background: #eee; }
-    .row { display: flex; align-items: center; gap: 0.5rem; }
+    .row { display: flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; }
     .row input[type="checkbox"] { accent-color: #fff; }
-    .hint { font-size: 0.7rem; opacity: 0.45; line-height: 1.5; }
+    .hint { font-size: 0.68rem; opacity: 0.45; line-height: 1.5; }
+    hr { border: none; border-top: 1px solid #1e1e1e; margin: 0.25rem 0; }
   </style>
 </head>
 <body>
@@ -55,7 +65,7 @@
   <aside id="panel">
     <div>
       <a class="back" href="index.html">← testbild-360</a>
-      <h1 style="margin-top: 0.5rem">dome test pattern</h1>
+      <h1 style="margin-top: 0.35rem">dome test pattern</h1>
     </div>
 
     <div class="group">
@@ -69,250 +79,406 @@
     </div>
 
     <div class="group">
-      <label>fov (fisheye aperture)</label>
+      <label>fov (aperture)</label>
       <select id="fov">
-        <option value="180" selected>180° (full hemisphere)</option>
+        <option value="180" selected>180°</option>
         <option value="220">220° (domemaster)</option>
       </select>
     </div>
 
+    <hr>
+
+    <div class="group">
+      <label>grid — arcs (elevation rings)</label>
+      <div class="pair">
+        <div class="field"><span>major step °</span><input type="number" id="arcMajor" value="10" min="1" max="90" step="1"></div>
+        <div class="field"><span>minor step °</span><input type="number" id="arcMinor" value="5" min="0" max="90" step="1"></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <label>grid — lines (azimuth spokes)</label>
+      <div class="pair">
+        <div class="field"><span>major count</span><input type="number" id="spokeMajor" value="36" min="1" max="360" step="1"></div>
+        <div class="field"><span>minor count</span><input type="number" id="spokeMinor" value="72" min="0" max="720" step="1"></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <label>sections (labeled wedges)</label>
+      <input type="number" id="sections" value="0" min="0" max="36" step="1">
+      <span class="hint">0 = off. Draws N bold radial dividers + optional labels.</span>
+    </div>
+
+    <hr>
+
     <div class="group">
       <label>overlays</label>
-      <div class="row"><input type="checkbox" id="sweet" checked><label for="sweet" style="text-transform:none; opacity:1">sweet-spot band (30–45°)</label></div>
-      <div class="row"><input type="checkbox" id="ramp" checked><label for="ramp" style="text-transform:none; opacity:1">greyscale ramp</label></div>
-      <div class="row"><input type="checkbox" id="points" checked><label for="points" style="text-transform:none; opacity:1">point spreads</label></div>
-      <div class="row"><input type="checkbox" id="labels" checked><label for="labels" style="text-transform:none; opacity:1">labels</label></div>
+      <div class="row"><input type="checkbox" id="sweet" checked><label for="sweet">sweet-spot band (30–45°)</label></div>
+      <div class="row"><input type="checkbox" id="ramp"><label for="ramp">greyscale ramp</label></div>
+      <div class="row"><input type="checkbox" id="points"><label for="points">point spreads</label></div>
+      <div class="row"><input type="checkbox" id="labels" checked><label for="labels">grid labels (°)</label></div>
     </div>
+
+    <hr>
+
+    <div class="group">
+      <label>typography on arcs</label>
+      <textarea id="typo" spellcheck="false" placeholder="TEXT | elevation° | azimuth° | size_px | [flip]
+# lines starting with # are comments">WELCOME TO THE DOME | 30 | 0 | 64
+NORTH | 20 | 180 | 48 | flip
+EAST  | 20 | 270 | 48
+SOUTH | 20 | 0   | 48
+WEST  | 20 | 90  | 48</textarea>
+      <span class="hint">One item per line. Elevation: 0 = edge, 90 = zenith. Azimuth: 0 = bottom, CCW. Add <code>flip</code> to reverse reading direction.</span>
+    </div>
+
+    <hr>
 
     <div class="group">
       <button class="primary" id="download">download png</button>
       <button id="rerender">re-render</button>
     </div>
-
-    <p class="hint">
-      Azimuthal equidistant mapping (r = f·θ). 0° azimuth at bottom (audience-front).
-      Elevation measured from horizon: 0° = edge, 90° = zenith. Sweet-spot band marks the
-      30–45° zone recommended for dome text placement.
-    </p>
   </aside>
 
   <script>
     const canvas = document.getElementById('preview');
     const ctx = canvas.getContext('2d');
-
     const $ = id => document.getElementById(id);
-    const controls = ['res', 'fov', 'sweet', 'ramp', 'points', 'labels'];
-    controls.forEach(id => $(id).addEventListener('change', render));
+
+    const controls = ['res', 'fov', 'arcMajor', 'arcMinor', 'spokeMajor', 'spokeMinor',
+                      'sections', 'sweet', 'ramp', 'points', 'labels', 'typo'];
+    controls.forEach(id => $(id).addEventListener('input', render));
     $('rerender').addEventListener('click', render);
     $('download').addEventListener('click', download);
 
+    // ── render state ─────────────────────────────────────────────────────────
+    let cx, cy, R, halfFov, lineUnit;
+
+    const zToR = z => (z / halfFov) * R;
+    const azToXY = (rr, Adeg) => {
+      const a = Adeg * Math.PI / 180;
+      return [cx + rr * Math.sin(a), cy + rr * Math.cos(a)];
+    };
+
     function render() {
-      const size = parseInt($('res').value, 10);
-      const fov  = parseInt($('fov').value, 10);
+      const size    = parseInt($('res').value, 10);
+      const fov     = parseInt($('fov').value, 10);
+      const arcMaj  = Math.max(1, parseFloat($('arcMajor').value) || 10);
+      const arcMin  = Math.max(0, parseFloat($('arcMinor').value) || 0);
+      const spkMaj  = Math.max(1, parseInt($('spokeMajor').value, 10) || 36);
+      const spkMin  = Math.max(0, parseInt($('spokeMinor').value, 10) || 0);
+      const secs    = Math.max(0, parseInt($('sections').value, 10) || 0);
+
       canvas.width = size;
       canvas.height = size;
+      cx = size / 2; cy = size / 2;
+      R = size / 2 * 0.985;
+      halfFov = fov / 2;
+      lineUnit = Math.max(1, Math.round(size / 1024));
 
-      const cx = size / 2, cy = size / 2;
-      const R = size / 2 * 0.985;            // dome disc radius (small margin)
-      const lineUnit = Math.max(1, Math.round(size / 1024));
-
-      // ── background ─────────────────────────────────────────────────────────
       ctx.fillStyle = '#000';
       ctx.fillRect(0, 0, size, size);
 
-      // Azimuthal equidistant: elevation E (from horizon) → r/R = (90 - E) / (fov/2)
-      // For 180° dome, fov/2 = 90 so r/R = (90 - E)/90.
-      // For 220° (domemaster) the disc extends 20° below horizon; horizon sits at r/R = 90/110.
-      const halfFov = fov / 2;                // degrees from zenith at the disc edge
-      const elevToR = E => ((halfFov - (90 - (90 - E))) ) / halfFov * R;
-      // Simpler: zenith angle z = 90 - E, r = z / halfFov * R
-      const zToR = z => (z / halfFov) * R;
+      drawSweetSpot();
+      drawArcs(arcMaj, arcMin);
+      drawSpokes(spkMaj, spkMin);
+      drawSections(secs);
+      drawHorizon();
+      drawZenithDot();
+      if ($('labels').checked) drawGridLabels(arcMaj, spkMaj);
+      if ($('ramp').checked)   drawRamp();
+      if ($('points').checked) drawPoints();
+      drawTypography();
+      drawSignature(size, fov);
+    }
 
-      // ── sweet-spot band (under the grid so grid reads on top) ──────────────
-      if ($('sweet').checked) {
-        const rInner = zToR(90 - 45);   // 45° elevation
-        const rOuter = zToR(90 - 30);   // 30° elevation
-        ctx.fillStyle = 'rgba(80, 180, 255, 0.08)';
-        ctx.beginPath();
-        ctx.arc(cx, cy, rOuter, 0, Math.PI * 2);
-        ctx.arc(cx, cy, rInner, 0, Math.PI * 2, true);
-        ctx.fill();
+    function drawSweetSpot() {
+      if (!$('sweet').checked) return;
+      const rInner = zToR(90 - 45);
+      const rOuter = zToR(90 - 30);
+      ctx.fillStyle = 'rgba(80, 180, 255, 0.08)';
+      ctx.beginPath();
+      ctx.arc(cx, cy, rOuter, 0, Math.PI * 2);
+      ctx.arc(cx, cy, rInner, 0, Math.PI * 2, true);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(80, 180, 255, 0.85)';
+      ctx.lineWidth = lineUnit * 1.5;
+      ctx.setLineDash([lineUnit * 6, lineUnit * 4]);
+      ctx.beginPath();
+      ctx.arc(cx, cy, zToR(60), 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
 
-        // 30° elevation sweet-spot ring (dashed, cyan)
-        ctx.strokeStyle = 'rgba(80, 180, 255, 0.85)';
-        ctx.lineWidth = lineUnit * 1.5;
-        ctx.setLineDash([lineUnit * 6, lineUnit * 4]);
-        ctx.beginPath();
-        ctx.arc(cx, cy, zToR(60), 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.setLineDash([]);
-      }
-
-      // ── elevation rings ────────────────────────────────────────────────────
-      ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+    function drawArcs(majStep, minStep) {
+      ctx.strokeStyle = '#fff';
       ctx.lineWidth = lineUnit;
-      // minor rings every 5° elevation
-      for (let E = 0; E <= 90; E += 5) {
+      // minor rings
+      if (minStep > 0) {
+        ctx.globalAlpha = 0.25;
+        for (let E = 0; E < 90; E += minStep) {
+          if (Math.abs(E % majStep) < 1e-6) continue;
+          const z = 90 - E;
+          if (z > halfFov) continue;
+          ctx.beginPath();
+          ctx.arc(cx, cy, zToR(z), 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      }
+      // major rings
+      ctx.globalAlpha = 0.9;
+      for (let E = 0; E <= 90; E += majStep) {
         const z = 90 - E;
         if (z > halfFov) continue;
-        const r = zToR(z);
-        ctx.globalAlpha = (E % 10 === 0) ? 0.9 : 0.35;
         ctx.beginPath();
-        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.arc(cx, cy, zToR(z), 0, Math.PI * 2);
         ctx.stroke();
       }
       ctx.globalAlpha = 1;
+    }
 
-      // ── azimuth spokes ─────────────────────────────────────────────────────
-      // Azimuth A: 0° at bottom of image, increasing CCW on screen
-      // Screen angle = 90° + A  (measuring from +x axis CCW in math; but canvas y is flipped)
-      // Convert: point at (cx + R sin(A), cy + R cos(A)) gives 0° at bottom.
-      const azToXY = (rr, Adeg) => {
-        const a = Adeg * Math.PI / 180;
-        return [cx + rr * Math.sin(a), cy + rr * Math.cos(a)];
-      };
-      for (let A = 0; A < 360; A += 5) {
-        ctx.globalAlpha = (A % 10 === 0) ? 0.9 : 0.35;
+    function drawSpokes(majCount, minCount) {
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = lineUnit;
+      const majStep = 360 / majCount;
+      // minor spokes
+      if (minCount > 0) {
+        const minStep = 360 / minCount;
+        ctx.globalAlpha = 0.25;
+        for (let i = 0; i < minCount; i++) {
+          const A = i * minStep;
+          if (Math.abs(((A % majStep) + majStep) % majStep) < 1e-6) continue;
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          const [x, y] = azToXY(R, A);
+          ctx.lineTo(x, y);
+          ctx.stroke();
+        }
+      }
+      // major spokes
+      ctx.globalAlpha = 0.9;
+      for (let i = 0; i < majCount; i++) {
+        const A = i * majStep;
         ctx.beginPath();
         ctx.moveTo(cx, cy);
         const [x, y] = azToXY(R, A);
         ctx.lineTo(x, y);
         ctx.stroke();
       }
-      // fine ticks every 1° on outer ring
-      ctx.globalAlpha = 0.6;
-      for (let A = 0; A < 360; A += 1) {
-        if (A % 5 === 0) continue;
-        const [x1, y1] = azToXY(R, A);
-        const [x2, y2] = azToXY(R - lineUnit * 6, A);
+      ctx.globalAlpha = 1;
+    }
+
+    function drawSections(count) {
+      if (count <= 0) return;
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = lineUnit * 2.5;
+      ctx.globalAlpha = 0.95;
+      const step = 360 / count;
+      for (let i = 0; i < count; i++) {
+        const A = i * step;
         ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
+        ctx.moveTo(cx, cy);
+        const [x, y] = azToXY(R, A);
+        ctx.lineTo(x, y);
         ctx.stroke();
       }
+      // section labels
+      const baseFont = Math.max(12, Math.round(canvas.width / 80));
+      ctx.font = `bold ${baseFont}px ui-monospace, Menlo, monospace`;
+      ctx.fillStyle = '#fff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      for (let i = 0; i < count; i++) {
+        const A = i * step + step / 2;
+        const [x, y] = azToXY(R * 0.93, A);
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(-A * Math.PI / 180 + Math.PI);
+        ctx.fillText(String(i + 1), 0, 0);
+        ctx.restore();
+      }
       ctx.globalAlpha = 1;
+    }
 
-      // ── outer horizon ring (bolder) ────────────────────────────────────────
+    function drawHorizon() {
       ctx.strokeStyle = '#fff';
       ctx.lineWidth = lineUnit * 2;
       ctx.beginPath();
       ctx.arc(cx, cy, R, 0, Math.PI * 2);
       ctx.stroke();
+    }
 
-      // ── center dot (zenith) ────────────────────────────────────────────────
+    function drawZenithDot() {
       ctx.fillStyle = '#fff';
       ctx.beginPath();
       ctx.arc(cx, cy, lineUnit * 1.5, 0, Math.PI * 2);
       ctx.fill();
+    }
 
-      // ── labels ─────────────────────────────────────────────────────────────
-      if ($('labels').checked) {
-        const baseFont = Math.max(10, Math.round(size / 120));
-        ctx.fillStyle = '#fff';
-        ctx.font = `${baseFont}px ui-monospace, Menlo, monospace`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
+    function drawGridLabels(arcMaj, spkMaj) {
+      const size = canvas.width;
+      const baseFont = Math.max(10, Math.round(size / 120));
+      ctx.fillStyle = '#fff';
+      ctx.font = `${baseFont}px ui-monospace, Menlo, monospace`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
 
-        // Elevation labels on the 4 cardinal axes — readable from inside the dome
-        // (i.e. tangent to the radius, always right-side up when viewed from that direction).
-        const cardinals = [
-          { A: 0,   rot: 0 },          // bottom
-          { A: 90,  rot: Math.PI / 2 },// right
-          { A: 180, rot: Math.PI },    // top
-          { A: 270, rot: -Math.PI / 2 } // left
-        ];
-        for (const { A, rot } of cardinals) {
-          for (let E = 10; E < 90; E += 10) {
-            const [x, y] = azToXY(zToR(90 - E), A);
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.rotate(rot);
-            ctx.fillStyle = 'rgba(0,0,0,0.75)';
-            ctx.fillRect(-baseFont * 0.9, -baseFont * 0.6, baseFont * 1.8, baseFont * 1.2);
-            ctx.fillStyle = '#fff';
-            ctx.fillText(String(E), 0, 0);
-            ctx.restore();
-          }
-        }
-
-        // Azimuth labels every 10° around the outer ring
-        const labelR = R + baseFont * 1.2;
-        for (let A = 0; A < 360; A += 10) {
-          const [x, y] = azToXY(labelR, A);
+      // elevation labels on 4 cardinal axes
+      const cardinals = [
+        { A: 0,   rot: 0 },
+        { A: 90,  rot: Math.PI / 2 },
+        { A: 180, rot: Math.PI },
+        { A: 270, rot: -Math.PI / 2 }
+      ];
+      for (const { A, rot } of cardinals) {
+        for (let E = arcMaj; E < 90; E += arcMaj) {
+          const z = 90 - E;
+          if (z > halfFov) continue;
+          const [x, y] = azToXY(zToR(z), A);
           ctx.save();
           ctx.translate(x, y);
-          // rotate so label reads outward
-          ctx.rotate(A * Math.PI / 180);
-          ctx.fillText(String(A), 0, 0);
+          ctx.rotate(rot);
+          ctx.fillStyle = 'rgba(0,0,0,0.75)';
+          ctx.fillRect(-baseFont * 0.95, -baseFont * 0.6, baseFont * 1.9, baseFont * 1.2);
+          ctx.fillStyle = '#fff';
+          ctx.fillText(String(E), 0, 0);
           ctx.restore();
         }
       }
 
-      // ── greyscale ramp (255 steps) ─────────────────────────────────────────
-      if ($('ramp').checked) {
-        // place a 255-step ramp as a radial strip at azimuth 45° (between cardinals)
-        const rampA = 45;
-        const rampInnerR = zToR(80);  // near zenith
-        const rampOuterR = zToR(10);  // near horizon
-        const rampWidth = size * 0.025;
-        const steps = 256;
-        for (let i = 0; i < steps; i++) {
-          const t = i / (steps - 1);
-          const rr = rampInnerR + (rampOuterR - rampInnerR) * t;
-          const rrNext = rampInnerR + (rampOuterR - rampInnerR) * ((i + 1) / (steps - 1));
-          const [x1, y1] = azToXY(rr, rampA);
-          const a = rampA * Math.PI / 180;
-          // perpendicular direction for the strip's width
-          const perpX = Math.cos(a), perpY = -Math.sin(a);
-          const v = Math.round(t * 255);
-          ctx.fillStyle = `rgb(${v},${v},${v})`;
-          ctx.beginPath();
-          ctx.moveTo(x1 - perpX * rampWidth / 2, y1 - perpY * rampWidth / 2);
-          ctx.lineTo(x1 + perpX * rampWidth / 2, y1 + perpY * rampWidth / 2);
-          const [x2, y2] = azToXY(rrNext, rampA);
-          ctx.lineTo(x2 + perpX * rampWidth / 2, y2 + perpY * rampWidth / 2);
-          ctx.lineTo(x2 - perpX * rampWidth / 2, y2 - perpY * rampWidth / 2);
-          ctx.closePath();
-          ctx.fill();
+      // azimuth labels every 10° around the outer ring
+      const labelR = R + baseFont * 1.2;
+      for (let A = 0; A < 360; A += Math.max(10, Math.round(360 / spkMaj))) {
+        const [x, y] = azToXY(labelR, A);
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(A * Math.PI / 180);
+        ctx.fillText(String(A), 0, 0);
+        ctx.restore();
+      }
+    }
+
+    function drawRamp() {
+      const size = canvas.width;
+      const rampA = 45;
+      const rampInnerR = zToR(80);
+      const rampOuterR = zToR(10);
+      const rampWidth = size * 0.025;
+      const steps = 256;
+      const a = rampA * Math.PI / 180;
+      const perpX = Math.cos(a), perpY = -Math.sin(a);
+      for (let i = 0; i < steps; i++) {
+        const t = i / (steps - 1);
+        const t2 = (i + 1) / (steps - 1);
+        const rr = rampInnerR + (rampOuterR - rampInnerR) * t;
+        const rrNext = rampInnerR + (rampOuterR - rampInnerR) * t2;
+        const [x1, y1] = azToXY(rr, rampA);
+        const [x2, y2] = azToXY(rrNext, rampA);
+        const v = Math.round(t * 255);
+        ctx.fillStyle = `rgb(${v},${v},${v})`;
+        ctx.beginPath();
+        ctx.moveTo(x1 - perpX * rampWidth / 2, y1 - perpY * rampWidth / 2);
+        ctx.lineTo(x1 + perpX * rampWidth / 2, y1 + perpY * rampWidth / 2);
+        ctx.lineTo(x2 + perpX * rampWidth / 2, y2 + perpY * rampWidth / 2);
+        ctx.lineTo(x2 - perpX * rampWidth / 2, y2 - perpY * rampWidth / 2);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+
+    function drawPoints() {
+      const size = canvas.width;
+      const clusterAz = [135, 225, 315];
+      const clusterR = zToR(30);
+      ctx.fillStyle = '#fff';
+      for (const A of clusterAz) {
+        const [cx0, cy0] = azToXY(clusterR, A);
+        const spacing = size / 85;
+        for (let p = 1; p <= 4; p++) {
+          const px = cx0 + (p - 2.5) * spacing;
+          const py = cy0;
+          ctx.fillRect(px - p / 2, py - p / 2, p, p);
         }
       }
+    }
 
-      // ── point spreads (1-4 px) ─────────────────────────────────────────────
-      if ($('points').checked) {
-        // four point clusters at azimuth 135°, 225°, 315° (skip 45° — ramp is there)
-        const clusterAz = [135, 225, 315];
-        const clusterR = zToR(30);  // 60° elevation ring
-        ctx.fillStyle = '#fff';
-        for (const A of clusterAz) {
-          const [cx0, cy0] = azToXY(clusterR, A);
-          // 1,2,3,4 px square dots in a row, spaced 12 px apart (at 1024)
-          const spacing = size / 85;
-          for (let p = 1; p <= 4; p++) {
-            const px = cx0 + (p - 2.5) * spacing;
-            const py = cy0;
-            ctx.fillRect(px - p / 2, py - p / 2, p, p);
-          }
-        }
+    // ── curved typography ────────────────────────────────────────────────────
+    function parseTypography(src) {
+      const items = [];
+      for (const rawLine of src.split('\n')) {
+        const line = rawLine.trim();
+        if (!line || line.startsWith('#')) continue;
+        const parts = line.split('|').map(s => s.trim());
+        if (parts.length < 1 || !parts[0]) continue;
+        items.push({
+          text:  parts[0],
+          elev:  parts[1] !== undefined ? parseFloat(parts[1]) : 30,
+          az:    parts[2] !== undefined ? parseFloat(parts[2]) : 0,
+          size:  parts[3] !== undefined ? parseFloat(parts[3]) : 48,
+          flip:  parts[4] !== undefined && parts[4].toLowerCase() === 'flip'
+        });
       }
+      return items;
+    }
 
-      // ── legend / signature (bottom-center, outside grid) ───────────────────
-      if ($('labels').checked) {
-        const sigFont = Math.max(10, Math.round(size / 140));
-        ctx.font = `${sigFont}px ui-monospace, Menlo, monospace`;
-        ctx.fillStyle = 'rgba(255,255,255,0.5)';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'bottom';
-        ctx.fillText(
-          `testbild-360  ·  ${size}×${size}  ·  fov ${fov}°  ·  azimuthal equidistant`,
-          cx, size - sigFont * 0.6
-        );
+    function drawTypography() {
+      const items = parseTypography($('typo').value);
+      for (const it of items) drawArcText(it);
+    }
+
+    function drawArcText({ text, elev, az, size: fontSize, flip }) {
+      const z = 90 - elev;
+      if (z > halfFov || z < 0) return;
+      const r = zToR(z);
+      if (r <= 2) return;
+
+      ctx.font = `${fontSize}px ui-monospace, Menlo, monospace`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#fff';
+
+      const chars = [...text];
+      const widths = chars.map(c => ctx.measureText(c).width);
+      const total  = widths.reduce((s, w) => s + w, 0);
+      const totalAngDeg = (total / r) * (180 / Math.PI);
+
+      const dir = flip ? -1 : 1;
+      let cursorDeg = az - dir * totalAngDeg / 2;
+
+      for (let i = 0; i < chars.length; i++) {
+        const w = widths[i];
+        const charAng = (w / r) * (180 / Math.PI);
+        const Adeg = cursorDeg + dir * charAng / 2;
+        const Arad = Adeg * Math.PI / 180;
+        const x = cx + r * Math.sin(Arad);
+        const y = cy + r * Math.cos(Arad);
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(-Arad + (flip ? Math.PI : 0));
+        ctx.fillText(chars[i], 0, 0);
+        ctx.restore();
+        cursorDeg += dir * charAng;
       }
+    }
+
+    function drawSignature(size, fov) {
+      if (!$('labels').checked) return;
+      const sigFont = Math.max(10, Math.round(size / 140));
+      ctx.font = `${sigFont}px ui-monospace, Menlo, monospace`;
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText(
+        `testbild-360 · ${size}×${size} · fov ${fov}° · azimuthal equidistant`,
+        cx, size - sigFont * 0.6
+      );
     }
 
     function download() {
       render();
       const size = $('res').value;
-      const fov = $('fov').value;
+      const fov  = $('fov').value;
       const link = document.createElement('a');
       link.download = `dome-testpattern-${size}-fov${fov}.png`;
       link.href = canvas.toDataURL('image/png');
