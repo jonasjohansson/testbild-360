@@ -68,8 +68,8 @@ const overlays = {
 };
 
 const texts = [
-  { text: "Dome Dreaming",          elevation: 35, azimuth: 0, size: 128, flip: false, fontFamily: "OffBit" },
-  { text: "Fulldome Film Festival", elevation: 20, azimuth: 0, size: 96,  flip: false, fontFamily: "OPSPastPerfect" },
+  { text: "Dome Dreaming",          elevation: 35, azimuth: 0, size: 128, flip: false, fontFamily: "OffBit",         letterSpacing: 0 },
+  { text: "Fulldome Film Festival", elevation: 20, azimuth: 0, size: 96,  flip: false, fontFamily: "OPSPastPerfect", letterSpacing: 0 },
 ];
 
 // Dome render state
@@ -276,7 +276,7 @@ function drawTypographyDome() {
   for (const t of texts) drawArcText(t);
 }
 
-function drawArcText({ text, elevation, azimuth, size, flip, fontFamily }) {
+function drawArcText({ text, elevation, azimuth, size, flip, fontFamily, letterSpacing = 0 }) {
   const z = 90 - elevation;
   if (z > halfFov || z < 0) return;
   const r = zToR(z);
@@ -289,15 +289,17 @@ function drawArcText({ text, elevation, azimuth, size, flip, fontFamily }) {
 
   const chars = [...text];
   const widths = chars.map((c) => ctx.measureText(c).width);
-  const total = widths.reduce((s, w) => s + w, 0);
+  // Advance = glyph width + tracking; total excludes the trailing advance past the final glyph.
+  const advances = widths.map((w, i) => (i < widths.length - 1 ? w + letterSpacing : w));
+  const total = advances.reduce((s, a) => s + a, 0);
   const totalAngDeg = (total / r) * (180 / Math.PI);
   const dir = flip ? -1 : 1;
   let cursorDeg = azimuth - (dir * totalAngDeg) / 2;
 
   for (let i = 0; i < chars.length; i++) {
-    const w = widths[i];
-    const charAng = (w / r) * (180 / Math.PI);
-    const Adeg = cursorDeg + (dir * charAng) / 2;
+    const glyphAng = (widths[i] / r) * (180 / Math.PI);
+    const advAng   = (advances[i] / r) * (180 / Math.PI);
+    const Adeg = cursorDeg + (dir * glyphAng) / 2;
     const Arad = (Adeg * Math.PI) / 180;
     const x = cx + r * Math.sin(Arad);
     const y = cy + r * Math.cos(Arad);
@@ -305,7 +307,7 @@ function drawArcText({ text, elevation, azimuth, size, flip, fontFamily }) {
     ctx.rotate(-Arad + (flip ? Math.PI : 0));
     ctx.fillText(chars[i], 0, 0);
     ctx.restore();
-    cursorDeg += dir * charAng;
+    cursorDeg += dir * advAng;
   }
 }
 
@@ -322,14 +324,7 @@ function renderEquirect() {
     (lat) => ((90 - lat) / 180) * H,
     (lon) => (lon / 360) * W);
 
-  for (const t of texts) {
-    if (!t.text) continue;
-    const fam = FONT_CHOICES[t.fontFamily] || FONT_CHOICES.OffBit;
-    ctx.font = `${t.size}px ${fam}`;
-    ctx.fillStyle = overlays.lineColor;
-    ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    ctx.fillText(t.text, (t.azimuth / 360) * W, ((90 - t.elevation) / 180) * H);
-  }
+  for (const t of texts) drawStraightText(t, (t.azimuth / 360) * W, ((90 - t.elevation) / 180) * H);
 }
 
 // ── Cylindrical renderer ────────────────────────────────────────────────────
@@ -349,13 +344,25 @@ function renderCylindrical() {
 
   drawLatLonGrid(W, H, cylinder, yOf, xOf);
 
-  for (const t of texts) {
-    if (!t.text) continue;
-    const fam = FONT_CHOICES[t.fontFamily] || FONT_CHOICES.OffBit;
-    ctx.font = `${t.size}px ${fam}`;
-    ctx.fillStyle = overlays.lineColor;
-    ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    ctx.fillText(t.text, xOf(t.azimuth), yOf(t.elevation));
+  for (const t of texts) drawStraightText(t, xOf(t.azimuth), yOf(t.elevation));
+}
+
+// Straight text helper for equirect / cylindrical — supports letterSpacing
+// by laying out each character manually (ctx.letterSpacing isn't everywhere yet).
+function drawStraightText(t, cxPos, cyPos) {
+  if (!t.text) return;
+  const fam = FONT_CHOICES[t.fontFamily] || FONT_CHOICES.OffBit;
+  ctx.font = `${t.size}px ${fam}`;
+  ctx.fillStyle = overlays.lineColor;
+  ctx.textAlign = "left"; ctx.textBaseline = "middle";
+  const chars = [...t.text];
+  const widths = chars.map((c) => ctx.measureText(c).width);
+  const ls = t.letterSpacing || 0;
+  const total = widths.reduce((s, w) => s + w, 0) + ls * Math.max(0, chars.length - 1);
+  let x = cxPos - total / 2;
+  for (let i = 0; i < chars.length; i++) {
+    ctx.fillText(chars[i], x, cyPos);
+    x += widths[i] + ls;
   }
 }
 
@@ -768,6 +775,7 @@ function createTextFolder(item) {
   folder.add(item, "elevation", -90, 90, 0.5).name("Elev/Lat °").onChange(render);
   folder.add(item, "azimuth", 0, 360, 0.5).name("Azim/Lon °").onChange(render);
   folder.add(item, "size", 8, 512, 1).name("Size px").onChange(render);
+  folder.add(item, "letterSpacing", -40, 200, 1).name("Letter spacing px").onChange(render);
   folder.add(item, "flip").name("Flip (dome only)").onChange(render);
   folder.add({
     remove() {
@@ -782,7 +790,7 @@ function createTextFolder(item) {
 }
 typoFolder.add({
   add() {
-    const item = { text: "TEXT", elevation: 25, azimuth: 0, size: 64, flip: false, fontFamily: "OffBit" };
+    const item = { text: "TEXT", elevation: 25, azimuth: 0, size: 64, flip: false, fontFamily: "OffBit", letterSpacing: 0 };
     texts.push(item);
     createTextFolder(item);
     render();
@@ -813,5 +821,14 @@ function updateVisibility() {
 }
 updateVisibility();
 
-// Wait one frame so web fonts have a chance to be registered before first render
-document.fonts.ready.then(render);
+// Web fonts aren't fetched until something uses them. Canvas references don't
+// trigger loading on their own, so explicitly warm every @font-face before the
+// first render — otherwise the canvas falls back to a system font until the
+// user changes something in the GUI.
+const FONTS_TO_WARM = ["OffBit", "OffBit-101", "OffBit-Dot", "OffBit-Bar", "OPSPastPerfect"];
+Promise.all(
+  FONTS_TO_WARM.flatMap((f) => [
+    document.fonts.load(`16px "${f}"`),
+    document.fonts.load(`bold 16px "${f}"`),
+  ]),
+).then(render, render);
