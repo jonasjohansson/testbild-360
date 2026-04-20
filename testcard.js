@@ -68,8 +68,8 @@ const overlays = {
 };
 
 const texts = [
-  { text: "DOME",     elevation: 35, azimuth: 0, size: 128, flip: false, fontFamily: "OffBit" },
-  { text: "DREAMING", elevation: 20, azimuth: 0, size: 96,  flip: false, fontFamily: "OffBit" },
+  { text: "Dome Dreaming",          elevation: 35, azimuth: 0, size: 128, flip: false, fontFamily: "OffBit" },
+  { text: "Fulldome Film Festival", elevation: 20, azimuth: 0, size: 96,  flip: false, fontFamily: "OPSPastPerfect" },
 ];
 
 // Dome render state
