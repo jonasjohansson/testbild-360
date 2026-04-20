@@ -61,6 +61,7 @@ const cylinder = {
 const overlays = {
   points: false,
   gridLabels: false,
+  degreeTicks: true,
   lineColor: "#ffffff",
   background: "#000000",
   transparentBg: true,
@@ -112,7 +113,7 @@ function renderDome() {
   const size = output.resolution;
   canvas.width = size; canvas.height = size;
   cx = size / 2; cy = size / 2;
-  R = (size / 2) * 0.93;
+  R = size / 2;                 // edge to edge
   halfFov = output.fov / 2;
   lineUnit = Math.max(1, Math.round(size / 1024));
 
@@ -122,10 +123,29 @@ function renderDome() {
   drawSpokes();
   drawSections();
   drawHorizon();
+  if (overlays.degreeTicks) drawDegreeTicks();
   drawZenithDot();
   if (overlays.gridLabels) drawDomeLabels();
   if (overlays.points) drawPoints();
   drawTypographyDome();
+}
+
+function drawDegreeTicks() {
+  const size = canvas.width;
+  const tick1  = size / 400;
+  const tick5  = size / 200;
+  const tick10 = size / 100;
+  ctx.strokeStyle = overlays.lineColor;
+  ctx.lineWidth = gridLineWidth();
+  for (let A = 0; A < 360; A += 1) {
+    const len = A % 10 === 0 ? tick10 : A % 5 === 0 ? tick5 : tick1;
+    const [x1, y1] = azToXY(R, A);
+    const [x2, y2] = azToXY(R - len, A);
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+  }
 }
 
 function drawArcs() {
@@ -244,16 +264,18 @@ function drawDomeLabels() {
     }
   }
 
-  const labelR = R + baseFont * 1.2;
+  // Place azimuth labels INSIDE the polar circle, just past the degree ticks.
+  const tickAllowance = overlays.degreeTicks ? canvas.width / 100 : 0;
+  const labelR = R - tickAllowance - baseFont * 1.2;
   const spokes = dome.spokeMajorCount;
   const azStep = 360 / spokes;
-  // Cap total labels at ~36 so dense spoke counts don't cram the rim.
   const skip = Math.max(1, Math.ceil(spokes / 36));
   ctx.fillStyle = overlays.lineColor;
   for (let i = 0; i < spokes; i += skip) {
     const A = i * azStep;
     const [x, y] = azToXY(labelR, A);
-    ctx.save(); ctx.translate(x, y); ctx.rotate((-A * Math.PI) / 180);
+    // Labels inside the ring read tops-toward-center (add π to the tangent rotation)
+    ctx.save(); ctx.translate(x, y); ctx.rotate((-A * Math.PI) / 180 + Math.PI);
     const label = Number.isInteger(A) ? String(A) : (Math.round(A * 10) / 10).toString();
     ctx.fillText(label, 0, 0);
     ctx.restore();
@@ -763,6 +785,7 @@ cylinderFolder.add(cylinder, "lonMinorStep", 0, 60, 1).name("Lon minor step °")
 const overlaysFolder = gui.addFolder("Overlays");
 const pointsCtrl = overlaysFolder.add(overlays, "points").name("Point spreads").onChange(render);
 overlaysFolder.add(overlays, "gridLabels").name("Grid labels").onChange(render);
+const degreeTicksCtrl = overlaysFolder.add(overlays, "degreeTicks").name("Degree ticks").onChange(render);
 overlaysFolder.add(overlays, "lineWidthMul", 0.25, 5, 0.25).name("Line thickness").onChange(render);
 overlaysFolder.addColor(overlays, "lineColor").name("Line colour").onChange(render);
 overlaysFolder.add(overlays, "transparentBg").name("Transparent bg").onChange(render);
@@ -822,6 +845,7 @@ function updateVisibility() {
   fovCtrl.show(outputFisheye);
   overlaysFolder.show(!isConv);
   pointsCtrl.show(isDome);
+  degreeTicksCtrl.show(isDome);
   typoFolder.show(!isConv);
 }
 updateVisibility();
