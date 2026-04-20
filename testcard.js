@@ -35,10 +35,10 @@ const inputState = {
 };
 
 const dome = {
-  arcMajorStep: 10,
-  arcMinorStep: 5,
-  spokeMajorCount: 36,
-  spokeMinorCount: 72,
+  arcMajorStep: 20,
+  arcMinorStep: 10,
+  spokeMajorCount: 16,
+  spokeMinorCount: 0,
   sections: 0,
   sectionNumbers: true,
 };
@@ -68,8 +68,8 @@ const overlays = {
 };
 
 const texts = [
-  { text: "Dome Dreaming",          elevation: 35, azimuth: 0, size: 128, flip: false, fontFamily: "OffBit",         letterSpacing: 0 },
-  { text: "Fulldome Film Festival", elevation: 20, azimuth: 0, size: 96,  flip: false, fontFamily: "OPSPastPerfect", letterSpacing: 0 },
+  { text: "Dome Dreaming",          elevation: 43,   azimuth: 0, size: 128, flip: false, fontFamily: "OffBit",         letterSpacing: 0 },
+  { text: "Fulldome Film Festival", elevation: 32.5, azimuth: 0, size: 96,  flip: false, fontFamily: "OPSPastPerfect", letterSpacing: 0 },
 ];
 
 // Dome render state
