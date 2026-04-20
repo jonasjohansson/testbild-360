@@ -1,53 +1,28 @@
 # testbild-360
 
-Test patterns and projection conversion for fulldome, equirectangular, and panoramic imaging.
+Fulldome test pattern generator — azimuthal equidistant (fisheye) polar grid with curved typography on arcs.
 
-Browser-first. No build step. Canvas rendering, PNG export at dome-native resolutions (1024 → 8192).
+Browser-first, no build step. Canvas rendering, PNG export at dome-native resolutions (512 → 8192). Transparent background by default.
 
-Foundations: [Paul Bourke's dome work](https://paulbourke.net/dome/) — the canonical reference for fisheye math, warp meshes, and fulldome test patterns.
+Live: **https://testbild-360.jonasjohansson.se**
 
-## Scope
+## Controls
 
-Open `index.html`. Single-page tool, lil-gui controls, canvas render.
-
-### Current
-- **Dome** (azimuthal equidistant fisheye) test pattern — polar grid, elevation rings, azimuth spokes, sweet-spot band, point spreads, curved typography on arcs.
-- **Equirectangular** (2:1) test pattern — lat/lon grid with configurable major/minor steps, equator highlight, straight typography at (lat, lon).
-
-Typography items are shared across generators: `elevation/latitude` and `azimuth/longitude` map naturally between projections.
-
-### Planned (roadmap panel in GUI)
-- Cylindrical panorama test pattern
-- Converters: `fish2sphere`, `sphere2fish`, `cube ↔ fisheye`
-
-Naming matches Bourke's CLI convention so the tools interoperate with the existing fulldome ecosystem (VLC-warp, warpplayer, Vuo).
-
-## Fisheye mappings
-
-Default is **angular equidistant** (r = f·θ) — what most fulldome content uses. Other supported mappings:
-- Equisolid (r = 2f·sin(θ/2))
-- Orthographic (r = f·sin(θ)) — capped at 180° FOV
-- Stereographic (r = 2f·tan(θ/2))
+- **Output** — resolution (512/1024/2048/4096/8192), FOV (180° / 220° domemaster)
+- **Dome grid** — arc major/minor step in °, spoke major/minor count, optional labelled section wedges
+- **Overlays** — point spreads, grid labels, degree ticks, line thickness, line colour, transparent / solid background
+- **Typography** — any number of curved text items; each has font (OffBit / OPSPastPerfect / etc.), elevation, azimuth, size, letter spacing, flip (reverses reading direction)
 
 ## Conventions
 
-- Fisheye output is **square**, centered, equidistant unless specified otherwise.
-- Elevation is measured from horizon (0° = dome edge, 90° = zenith).
+- Elevation is measured from horizon: 0° = dome edge, 90° = zenith.
 - Azimuth 0° sits at the bottom of the image (audience-front) and increases counter-clockwise on screen.
-- Fisheye/equirect/cube are **projections**, not "distortions" (per Bourke).
+- Default mapping is angular equidistant (r = f·θ) — what most fulldome content uses.
 
-## Test pattern contents (Bourke spec)
+## Foundations
 
-- Polar grid: 2-px white lines on black
-- Elevation rings every 10° (0–90°)
-- Azimuth spokes every 10°
-- 255-step greyscale ramp (banding test)
-- Point spreads 1–4 px (star quality)
-- Small text at consistent pixel size across resolutions (legibility test)
-- Sweet-spot band highlight (30–45° elevation)
+Design follows [Paul Bourke's fulldome conventions](https://paulbourke.net/dome/) — azimuthal equidistant default, polar-grid test pattern ingredients, and the note that fisheye is a *projection*, not a "distortion."
 
-**Rotating-movie test protocol:** export the pattern, encode as a slow 360° rotation (60 s). Motion reveals codec/scaler aliasing that static tests hide.
+## Fonts
 
-## Status
-
-v0.1 — dome test pattern generator.
+OffBit (Regular / Bold / 101 / Dot / Bar) and OPSPastPerfect are included locally under `fonts/` — sourced from the [domedreaming-generator](https://github.com/jonasjohansson/domedreaming-generator) repo.
