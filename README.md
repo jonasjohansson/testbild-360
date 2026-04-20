@@ -11,10 +11,12 @@ Foundations: [Paul Bourke's dome work](https://paulbourke.net/dome/) — the can
 Open `index.html`. Single-page tool, lil-gui controls, canvas render.
 
 ### Current
-- Dome (azimuthal equidistant fisheye) test pattern — polar grid, elevation rings, azimuth spokes, sweet-spot band, greyscale ramp, point spreads, curved typography on arcs.
+- **Dome** (azimuthal equidistant fisheye) test pattern — polar grid, elevation rings, azimuth spokes, sweet-spot band, point spreads, curved typography on arcs.
+- **Equirectangular** (2:1) test pattern — lat/lon grid with configurable major/minor steps, equator highlight, straight typography at (lat, lon).
+
+Typography items are shared across generators: `elevation/latitude` and `azimuth/longitude` map naturally between projections.
 
 ### Planned (roadmap panel in GUI)
-- Equirectangular (2:1) test pattern
 - Cylindrical panorama test pattern
 - Converters: `fish2sphere`, `sphere2fish`, `cube ↔ fisheye`
 
