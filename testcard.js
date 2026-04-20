@@ -37,7 +37,7 @@ const inputState = {
 const dome = {
   arcMajorStep: 20,
   arcMinorStep: 10,
-  spokeMajorCount: 16,
+  spokeMajorCount: 10,
   spokeMinorCount: 0,
   sections: 0,
   sectionNumbers: true,
@@ -60,11 +60,11 @@ const cylinder = {
 
 const overlays = {
   points: false,
-  gridLabels: true,
+  gridLabels: false,
   lineColor: "#ffffff",
   background: "#000000",
   transparentBg: true,
-  lineWidthMul: 1.0,
+  lineWidthMul: 2.0,
 };
 
 const texts = [
