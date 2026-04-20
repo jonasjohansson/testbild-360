@@ -178,7 +178,7 @@ function drawSections() {
   const count = dome.sections;
   if (count <= 0) return;
   ctx.strokeStyle = overlays.lineColor;
-  ctx.lineWidth = gridLineWidth() * 2.5;
+  ctx.lineWidth = gridLineWidth();
   ctx.globalAlpha = 0.95;
   const step = 360 / count;
   for (let i = 0; i < count; i++) {
@@ -206,7 +206,7 @@ function drawSections() {
 
 function drawHorizon() {
   ctx.strokeStyle = overlays.lineColor;
-  ctx.lineWidth = gridLineWidth() * 2;
+  ctx.lineWidth = gridLineWidth();
   ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke();
 }
 
@@ -408,7 +408,7 @@ function drawLatLonGrid(W, H, params, yOf, xOf) {
   }
   ctx.globalAlpha = 1;
 
-  ctx.lineWidth = gridLineWidth() * 2;
+  ctx.lineWidth = gridLineWidth();
   ctx.beginPath(); ctx.moveTo(0, yOf(0)); ctx.lineTo(W, yOf(0)); ctx.stroke();
   ctx.strokeRect(gridLineWidth() / 2, gridLineWidth() / 2, W - gridLineWidth(), H - gridLineWidth());
 
