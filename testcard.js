@@ -113,9 +113,12 @@ function renderDome() {
   const size = output.resolution;
   canvas.width = size; canvas.height = size;
   cx = size / 2; cy = size / 2;
-  R = size / 2;                 // edge to edge
   halfFov = output.fov / 2;
   lineUnit = Math.max(1, Math.round(size / 1024));
+  // Inset by half the stroke width so the horizon ring fits entirely inside
+  // the canvas (strokes are drawn centered on the path — at R = size/2 the
+  // outer half would clip).
+  R = size / 2 - Math.ceil(gridLineWidth() / 2);
 
   paintBackground(size, size);
 
