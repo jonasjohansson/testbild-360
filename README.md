@@ -8,15 +8,15 @@ Foundations: [Paul Bourke's dome work](https://paulbourke.net/dome/) — the can
 
 ## Scope
 
-### Generators
-- `dome-testpattern.html` — azimuthal equidistant (fisheye) test pattern. Polar grid, concentric elevation rings, azimuth spokes, greyscale ramp, point spreads, sweet-spot band.
-- `equirect-testpattern.html` *(planned)* — 2:1 equirectangular test pattern.
-- `panorama-testpattern.html` *(planned)* — cylindrical panorama test pattern.
+Open `index.html`. Single-page tool, lil-gui controls, canvas render.
 
-### Converters *(planned)*
-- `fish2sphere` — fisheye → equirectangular
-- `sphere2fish` — equirectangular → fisheye
-- `cube2fish` / `fish2cube` — cubemap ↔ fisheye
+### Current
+- Dome (azimuthal equidistant fisheye) test pattern — polar grid, elevation rings, azimuth spokes, sweet-spot band, greyscale ramp, point spreads, curved typography on arcs.
+
+### Planned (roadmap panel in GUI)
+- Equirectangular (2:1) test pattern
+- Cylindrical panorama test pattern
+- Converters: `fish2sphere`, `sphere2fish`, `cube ↔ fisheye`
 
 Naming matches Bourke's CLI convention so the tools interoperate with the existing fulldome ecosystem (VLC-warp, warpplayer, Vuo).
 
