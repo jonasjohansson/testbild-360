@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>testbild-360</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #000; color: #fff;
+      font-family: ui-monospace, Menlo, monospace;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      padding: 3rem 2rem;
+      gap: 2rem;
+    }
+    h1 { font-size: 1.25rem; font-weight: normal; letter-spacing: 0.05em; }
+    h2 { font-size: 0.9rem; font-weight: normal; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; }
+    ul { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+    a { color: #fff; text-decoration: none; border-bottom: 1px solid #444; padding-bottom: 2px; }
+    a:hover { border-color: #fff; }
+    .soon { opacity: 0.35; pointer-events: none; border-color: transparent; }
+    .note { opacity: 0.5; font-size: 0.85rem; max-width: 48rem; line-height: 1.6; }
+    section { display: flex; flex-direction: column; }
+  </style>
+</head>
+<body>
+  <h1>testbild-360 — fulldome + 360° test patterns</h1>
+
+  <section>
+    <h2>Generators</h2>
+    <ul>
+      <li><a href="dome-testpattern.html">dome test pattern</a> — azimuthal equidistant fisheye</li>
+      <li><a class="soon" href="#">equirectangular test pattern (soon)</a></li>
+      <li><a class="soon" href="#">cylindrical panorama test pattern (soon)</a></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Converters</h2>
+    <ul>
+      <li><a class="soon" href="#">fish2sphere — fisheye → equirectangular (soon)</a></li>
+      <li><a class="soon" href="#">sphere2fish — equirectangular → fisheye (soon)</a></li>
+      <li><a class="soon" href="#">cube ↔ fisheye (soon)</a></li>
+    </ul>
+  </section>
+
+  <p class="note">
+    Foundations: <a href="https://paulbourke.net/dome/" target="_blank">Paul Bourke's dome work</a>.
+    Test pattern spec and CLI naming follow his conventions.
+  </p>
+</body>
+</html>
