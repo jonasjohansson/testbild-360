@@ -245,12 +245,17 @@ function drawDomeLabels() {
   }
 
   const labelR = R + baseFont * 1.2;
-  const azStep = Math.max(10, Math.round(360 / dome.spokeMajorCount));
+  const spokes = dome.spokeMajorCount;
+  const azStep = 360 / spokes;
+  // Cap total labels at ~36 so dense spoke counts don't cram the rim.
+  const skip = Math.max(1, Math.ceil(spokes / 36));
   ctx.fillStyle = overlays.lineColor;
-  for (let A = 0; A < 360; A += azStep) {
+  for (let i = 0; i < spokes; i += skip) {
+    const A = i * azStep;
     const [x, y] = azToXY(labelR, A);
     ctx.save(); ctx.translate(x, y); ctx.rotate((-A * Math.PI) / 180);
-    ctx.fillText(String(A), 0, 0);
+    const label = Number.isInteger(A) ? String(A) : (Math.round(A * 10) / 10).toString();
+    ctx.fillText(label, 0, 0);
     ctx.restore();
   }
 }
