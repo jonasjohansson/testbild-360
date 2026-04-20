@@ -37,7 +37,7 @@ const inputState = {
 const dome = {
   arcMajorStep: 20,
   arcMinorStep: 10,
-  spokeMajorCount: 10,
+  spokeMajorCount: 18,
   spokeMinorCount: 0,
   sections: 0,
   sectionNumbers: true,
